@@ -11,7 +11,7 @@ import Alamofire
 enum WebService: URLRequestConvertible {
     let baseUrl = "http://0.0.0.0:8080/api/"
 
-    case paymenMethod:
+    case paymenMethod(card: PaymentMethodRequest):
 
 
     var path: String {
@@ -28,11 +28,11 @@ enum WebService: URLRequestConvertible {
         }
     }
 
+
     var parameters: Parameters? {
         switch self {
-        case .paymenMethod:
-            return ["MerchantAccountHeader":"",
-                    "IdempotencyKeyHeader":""]
+        case .paymenMethod(card):
+            return card.pasToDict()
         default:
             nil
         }
@@ -44,6 +44,8 @@ enum WebService: URLRequestConvertible {
             .absoluteString.removingPercentEncoding!)
         var request = URLRequest.init(url: url!)
         request.httpMethod = method.rawValue
+        request.headers = ["MerchantAccountHeader":"",
+                           "IdempotencyKeyHeader":""]
         return try URLEncoding.default.encode(request,with: parameters)
     }
 }
